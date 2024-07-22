@@ -4,12 +4,14 @@ ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
-RUN pip install --upgrade pip "poetry==1.8.3"
+RUN apt-get update && apt install -y python3-dev
 
-RUN poetry config virtualenvs.create false --local
-COPY pyproject.toml poetry.lock ./
-RUN poetry install
+RUN pip install --upgrade pip
+RUN pip install poetry
+ADD pyproject.toml .
+RUN poetry config virtualenvs.create false
+RUN poetry install --no-root --no-interaction --no-ansi
 
-COPY mysite .
+EXPOSE 8000
 
-CMD ["gunicorn", "mysite.wsgi:application", "--bind", "0.0.0.0:8000"]
+COPY . .
